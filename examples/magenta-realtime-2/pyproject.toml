@@ -1,0 +1,13 @@
+[project]
+name = "magenta-realtime-2"
+version = "0.1.0"
+description = "Live AI music instruments built with Magenta RealTime 2"
+requires-python = ">=3.12"
+dependencies = [
+    "magenta-rt[mlx]>=2.0.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+]
+
+[project.scripts]
+mrt2-jam = "main:cli"

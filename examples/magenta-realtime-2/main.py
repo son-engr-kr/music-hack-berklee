@@ -1,0 +1,39 @@
+"""Magenta RealTime 2 — Live AI Music Instruments.
+
+Choose your instrument:
+
+    mrt2-jam jam      --style "jazz quartet"
+    mrt2-jam synth    --prompt "warm analog pad"
+    mrt2-jam gesture  --style "synthwave lead"
+    mrt2-jam looper   --style "lofi hip hop"
+"""
+
+import sys
+import argparse
+
+
+def cli():
+    parser = argparse.ArgumentParser(
+        description="Magenta RT 2 — Live AI Music Instruments"
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    subparsers.add_parser("jam", help="AI Jam Partner — call-and-response improvisation")
+    subparsers.add_parser("synth", help="AI Synthesizer — prompt-driven neural synth")
+    subparsers.add_parser("gesture", help="Gesture-Controlled Instrument — play with hands")
+    subparsers.add_parser("looper", help="Multitrack Looper — build layered arrangements")
+
+    args, remaining = parser.parse_known_args()
+
+    if args.command == "jam":
+        from src.jam import JamSession
+        JamSession.cli([sys.argv[0], *remaining])
+    elif args.command == "synth":
+        from src.synth import AISynthesizer
+        AISynthesizer.cli([sys.argv[0], *remaining])
+    elif args.command == "gesture":
+        from src.gesture import GestureInstrument
+        GestureInstrument.cli([sys.argv[0], *remaining])
+    elif args.command == "looper":
+        from src.looper import MultitrackLooper
+        MultitrackLooper.cli([sys.argv[0], *remaining])

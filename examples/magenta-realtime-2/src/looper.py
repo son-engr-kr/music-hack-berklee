@@ -11,7 +11,8 @@ import argparse
 import time
 import threading
 import queue
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 
@@ -29,7 +30,7 @@ class LoopLayer:
     notes: list[int] | None = None
     duration_frames: int = 100
     waveform: audio.Waveform | None = None
-    state: any = None
+    state: Any = None
 
 
 class MultitrackLooper:
@@ -63,7 +64,7 @@ class MultitrackLooper:
         Returns the layer index.
         """
         prompt = style or self.style
-        frames_per_bar = int(60 / self.bpm * 25)
+        frames_per_bar = int(4 * 60 / self.bpm * 25)
         total_frames = frames_per_bar * bars
 
         embedding = self._mrt.embed_style(prompt)
@@ -119,7 +120,8 @@ class MultitrackLooper:
                 n = len(layer.waveform.samples)
                 mixed[:n] += layer.waveform.samples[:n] * gain
 
-        return audio.Waveform(mixed, sample_rate=48000)
+        first_waveform = next(layer.waveform for layer in self._layers if layer.waveform is not None)
+        return audio.Waveform(mixed, sample_rate=first_waveform.sample_rate)
 
     def build_arrangement(self, callback, layers: list[dict]):
         """Build a multi-layer arrangement from a list of layer specs.

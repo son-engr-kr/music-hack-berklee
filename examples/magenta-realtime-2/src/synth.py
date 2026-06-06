@@ -64,7 +64,7 @@ class AISynthesizer:
         wav, self._state = self._mrt.generate(
             style=self._style_embedding,
             notes=notes,
-            drums=-1,
+            drums=[-1],
             frames=frames,
             state=self._state,
         )

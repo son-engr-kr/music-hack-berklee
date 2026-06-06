@@ -27,13 +27,13 @@ def cli():
 
     if args.command == "jam":
         from src.jam import JamSession
-        JamSession.cli([sys.argv[0], *remaining])
+        JamSession.cli(remaining)
     elif args.command == "synth":
         from src.synth import AISynthesizer
-        AISynthesizer.cli([sys.argv[0], *remaining])
+        AISynthesizer.cli(remaining)
     elif args.command == "gesture":
         from src.gesture import GestureInstrument
-        GestureInstrument.cli([sys.argv[0], *remaining])
+        GestureInstrument.cli(remaining)
     elif args.command == "looper":
         from src.looper import MultitrackLooper
-        MultitrackLooper.cli([sys.argv[0], *remaining])
+        MultitrackLooper.cli(remaining)

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Sound Canvas — Product Concept</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --red: #f85149;
+    --yellow: #d29922;
+    --pink: #f778ba;
+    --purple: #d2a8ff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2rem;
+  }
+  .container { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+  .subtitle { color: var(--muted); margin-bottom: 2rem; font-size: 1rem; }
+  h2 {
+    font-size: 1.25rem;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+  }
+  h3 { font-size: 1rem; margin: 1.5rem 0 0.5rem; color: var(--accent); }
+  h4 { font-size: 0.9rem; margin: 1rem 0 0.25rem; color: var(--pink); }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin: 1rem 0;
+  }
+  .card.highlight { border-color: var(--accent); }
+  p { font-size: 0.9rem; margin-bottom: 0.75rem; }
+  ul, ol { margin-left: 1.25rem; font-size: 0.9rem; }
+  li { margin-bottom: 0.4rem; }
+  code {
+    font-family: "SF Mono", monospace;
+    font-size: 0.8125rem;
+    background: rgba(88,166,255,0.1);
+    color: var(--accent);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+  }
+  .flow-diagram {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    font-family: "SF Mono", monospace;
+    font-size: 0.8rem;
+    line-height: 2;
+    white-space: pre;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .feature-card .emoji { font-size: 2rem; margin-bottom: 0.5rem; }
+  .feature-card h4 { margin-top: 0; color: var(--text); }
+  .feature-card p { font-size: 0.8rem; color: var(--muted); }
+  .timeline {
+    list-style: none;
+    margin-left: 0;
+    padding: 0;
+  }
+  .timeline li {
+    position: relative;
+    padding: 0 0 1.5rem 2rem;
+    border-left: 2px solid var(--border);
+    margin: 0;
+  }
+  .timeline li:last-child { border-left: 2px solid transparent; padding-bottom: 0; }
+  .timeline li::before {
+    content: "";
+    position: absolute;
+    left: -6px;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .timeline li .step { font-weight: 600; color: var(--accent); }
+  .tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15em 0.5em;
+    border-radius: 4px;
+    margin-right: 0.3em;
+  }
+  .tag.purple { background: #3b1a4a; color: var(--purple); }
+  .tag.green { background: #1a3f2e; color: var(--green); }
+  .tag.blue { background: #1a325f; color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>AI Sound Canvas</h1>
+<p class="subtitle">사운드를 픽하고, 클론하고, 쌓아서 나만의 새로운 악기를 만든다</p>
+
+<section>
+  <h2>개요</h2>
+  <div class="card highlight">
+    <p><strong>AI Sound Canvas</strong>는 웹 기반의 인터랙티브 신디사이저로, <span class="tag purple">Magenta (DDSP)</span>를 엔진으로 사용한다. 사용자는 세 가지 입력 방식(A/B/C)으로 소스를 제공하고, 그 안에서 원하는 사운드를 픽하여 클론한 뒤, 여러 레이어를 블렌드해서 하나의 새로운 악기로 탄생시킨다.</p>
+    <p style="margin-bottom:0;">모든 과정은 브라우저 위에서 동작하며, 최종 결과물은 웹 MIDI 키보드로 연주하거나 오디오로 익스포트할 수 있다.</p>
+  </div>
+</section>
+
+<section>
+  <h2>시스템 흐름</h2>
+  <div class="flow-diagram">┌──────────────────────────────────────┐
+│            INPUT SOURCE                │
+│                                        │
+│  [A] 오디오 파일 업로드                 │
+│  [B] 텍스트 프롬프트                    │
+│  [C] 허밍 / 마이크 입력                │
+└──────────────┬───────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────────┐
+│       MAGENTA DDSP ENGINE             │
+│  → Timbre Transfer & Sound Analysis  │
+│  → 스펙트럴 특징 추출 & 복제          │
+└──────────────┬───────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────────┐
+│        SOUND PICK & CLONE             │
+│  "이 신스 소리 골라줘"                │
+│  → 특정 구간의 음색 캡쳐              │
+│  → 파라미터 맵핑 (pitch, filter, env) │
+└──────────────┬───────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────────┐
+│          LAYER STACK                  │
+│                                       │
+│  ┌─ Layer 1: 클론된 신스 (source A)  ─┐
+│  ├─ Layer 2: AI 생성 악기톤 (prompt) ─┤
+│  ├─ Layer 3: 내 허밍 (source C)      ─┤
+│  ├─ Layer 4: 또 다른 클론            ─┤
+│  │                                    │
+│  │  각 레이어 컨트롤:                 │
+│  │  Blend % | Delay | Pan | Filter   │
+│  │  Volume  | On/Off | Stereo Spread │
+│  └────────────────────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────────┐
+│     PLAYABLE INSTRUMENT               │
+│  하나의 새로운 악기로 탄생             │
+│  → Web MIDI Keyboard로 연주           │
+│  → 오디오 Export (WAV)                │
+└──────────────────────────────────────┘</div>
+</section>
+
+<section>
+  <h2>핵심 기능</h2>
+  <div class="grid-2">
+    <div class="feature-card">
+      <div class="emoji">🎯</div>
+      <h4>Sound Picker</h4>
+      <p>업로드한 노래 안에서 "이 소리"를 선택하면 DDSP가 그 음색을 분석 &amp; 클론한다. 특정 구간의 신스 패드, 베이스, 리드 사운드를 캡쳐 가능.</p>
+    </div>
+    <div class="feature-card">
+      <div class="emoji">🧪</div>
+      <h4>AI Sound Generator</h4>
+      <p>텍스트 프롬프트로 원하는 악기톤을 생성한다. "warm analog pad", "aggressive saw lead" 같은 설명 → DDSP가 실시간 생성.</p>
+    </div>
+    <div class="feature-card">
+      <div class="emoji">🎤</div>
+      <h4>허밍 &amp; 마이크</h4>
+      <p>입으로 내는 소리, 비트박스, 멜로디 허밍을 분석해서 피치와 음색을 추출, 신디사이저 파라미터에 매핑.</p>
+    </div>
+    <div class="feature-card">
+      <div class="emoji">🧩</div>
+      <h4>Layer Blender</h4>
+      <p>각 레이어의 Blend %, Delay, Pan, Volume, Filter Cutoff, Stereo Spread를 실시간으로 조절. 단순 볼륨 믹스가 아니라 주파수 대역별 블렌드도 가능.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>UI / UX 구성 (안)</h2>
+  <div class="card">
+    <h3>메인 화면 — Layer Canvas</h3>
+    <ul>
+      <li><strong>상단:</strong> 입력 소스 선택 탭 (Upload / Prompt / Microphone)</li>
+      <li><strong>중앙:</strong> 각 레이어가 가로로 나열, 각 레이어마다 실시간 파형/스펙트로그램 시각화</li>
+      <li><strong>하단:</strong> 글로벌 컨트롤 (Master Volume, BPM, Key)</li>
+    </ul>
+
+    <h3>레이어 카드</h3>
+    <ul>
+      <li>레이어 이름 / 소스 아이콘 (업로드 / AI / 마이크)</li>
+      <li><strong>Sound Preview</strong> — 현재 레이어 단독 솔로 청취</li>
+      <li><strong>컨트롤 슬라이더:</strong>
+        <ul>
+          <li><code>Blend</code> — 전체 믹스에서 차지하는 비중 (%)</li>
+          <li><code>Delay</code> — 딜레이 타임 (ms), 피드백</li>
+          <li><code>Pan</code> — 좌우 위치</li>
+          <li><code>Filter</code> — Low/High/Band Pass + Cutoff + Resonance</li>
+          <li><code>Stereo Spread</code> — 스테레오 이미지 폭</li>
+          <li><code>Volume</code> — 레이어 게인</li>
+        </ul>
+      </li>
+      <li><strong>On/Off 토글</strong> — 각 레이어를 켜고 끄면서 A/B 비교</li>
+    </ul>
+
+    <h3>Sound Picker 모달</h3>
+    <ul>
+      <li>업로드한 곡의 파형 전체 표시</li>
+      <li>구간 선택 → 분석된 스펙트럼 표시</li>
+      <li>"이 소리 클론" 버튼</li>
+      <li>클론된 소리가 새 레이어로 추가됨</li>
+    </ul>
+
+    <h3>연주 화면</h3>
+    <ul>
+      <li>Web MIDI Keyboard (Qwerty 키보드 or MIDI 컨트롤러 연결)</li>
+      <li>각 레이어가 동시에 연주됨</li>
+      <li>연주 녹음 → Export WAV</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>데모 시나리오 (심사위원용)</h2>
+  <div class="card">
+    <ol class="timeline">
+      <li>
+        <span class="step">STEP 1</span> — 레퍼런스 곡 업로드<br>
+        <span style="color:var(--muted);font-size:0.85rem">🎵 80s 시티팝 한 곡을 업로드한다. 파형과 스펙트로그램이 표시된다.</span>
+      </li>
+      <li>
+        <span class="step">STEP 2</span> — Sound Picker로 신스 캡쳐<br>
+        <span style="color:var(--muted);font-size:0.85rem">🎯 곡의 인트로에서 "이 신스 패드 소리"를 선택 → DDSP가 음색을 분석하고 클론한다. Layer 1에 추가.</span>
+      </li>
+      <li>
+        <span class="step">STEP 3</span> — AI로 악기톤 생성<br>
+        <span style="color:var(--muted);font-size:0.85rem">🤖 "warm sub bass, round attack" 입력 → Magenta가 새로운 악기톤을 생성. Layer 2에 추가.</span>
+      </li>
+      <li>
+        <span class="step">STEP 4</span> — 허밍으로 멜로디 추가<br>
+        <span style="color:var(--muted);font-size:0.85rem">🎤 입으로 멜로디를 허밍 → 피치와 음색을 분석해서 Layer 3에 매핑.</span>
+      </li>
+      <li>
+        <span class="step">STEP 5</span> — 레이어 블렌드<br>
+        <span style="color:var(--muted);font-size:0.85rem">🧩 각 레이어의 Blend / Delay / Pan / Filter를 실시간 조절하며 최적의 믹스를 찾는다. Layer 1(클론 신스) 60% + Layer 2(AI 베이스) 30% + Layer 3(허밍) 10%.</span>
+      </li>
+      <li>
+        <span class="step">STEP 6</span> — 연주 &amp; 익스포트<br>
+        <span style="color:var(--muted);font-size:0.85rem">🎹 웹 키보드로 만들어진 악기를 연주한다. 세 개의 레이어가 하나의 악기로 동시에 울린다. 결과물을 WAV로 Export.</span>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2>기술 스택</h2>
+  <div class="card">
+    <table style="width:100%;border-collapse:collapse;font-size:0.875rem;">
+      <tr><th style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);color:var(--muted);">영역</th><th style="text-align:left;padding:0.5rem;border-bottom:1px solid var(--border);color:var(--muted);">기술</th></tr>
+      <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">AI Engine</td><td style="padding:0.5rem;border-bottom:1px solid var(--border);"><span class="tag purple">Magenta.js</span> DDSP (Differentiable Digital Signal Processing) — timbre transfer &amp; sound synthesis</td></tr>
+      <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">오디오 처리</td><td style="padding:0.5rem;border-bottom:1px solid var(--border);"><span class="tag blue">WebAudio API</span> — 실시간 오디오 라우팅, 이펙트, 시각화</td></tr>
+      <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">MIDI</td><td style="padding:0.5rem;border-bottom:1px solid var(--border);"><span class="tag blue">Web MIDI API</span> — MIDI 키보드 연결 및 QWERTY 키 매핑</td></tr>
+      <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">프론트엔드</td><td style="padding:0.5rem;border-bottom:1px solid var(--border);">React + TypeScript, Tailwind CSS</td></tr>
+      <tr><td style="padding:0.5rem;border-bottom:1px solid var(--border);">시각화</td><td style="padding:0.5rem;border-bottom:1px solid var(--border);">Canvas API / WebGL — 파형, 스펙트로그램, 애니메이션</td></tr>
+      <tr><td style="padding:0.5rem;">배포</td><td style="padding:0.5rem;">Vercel / Netlify (정적 웹앱)</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>차별성 (Why this wins)</h2>
+  <div class="card">
+    <ul>
+      <li><strong>Sound Picker:</strong> 단순히 "소리 생성"이 아니라, 기존 음악에서 원하는 사운드를 골라서 복제한다는 발상이 참신</li>
+      <li><strong>Layer Blending:</strong> 단순 믹서가 아니라 딜레이, 필터, 스테레오 스프레드까지 각 레이어별로 조절 가능한 인터랙티브한 UX</li>
+      <li><strong>웹 네이티브:</strong> 설치 없이 브라우저에서 모든 동작 — 데모 및 피드백 사이클이 빠름</li>
+      <li><strong>세 가지 입력 방식:</strong> 누구나 자신에게 편한 방식으로 참여 가능 (파일 / 텍스트 / 마이크)</li>
+      <li><strong>악기로 탄생:</strong> 단순한 오디오 생성이 아니라 "연주할 수 있는 악기"가 결과물 — 참여형 데모에 강함</li>
+    </ul>
+  </div>
+</section>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music Hack Berklee — Documents</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 1000px; margin: 0 auto; padding: 2rem;
+      line-height: 1.6; color: #e6edf3;
+      background: #0d1117;
+    }
+    h1 { font-size: 1.75rem; margin-bottom: 1.5rem; color: #e6edf3; }
+
+    /* Tabs */
+    .tabs {
+      display: flex; gap: 0; border-bottom: 2px solid #30363d;
+      margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+    .tab {
+      padding: .6rem 1rem; cursor: pointer; border: none; background: none;
+      font-size: .875rem; color: #8b949e; border-bottom: 2px solid transparent;
+      margin-bottom: -2px; transition: all .15s; white-space: nowrap;
+    }
+    .tab:hover { color: #e6edf3; }
+    .tab.active { color: #58a6ff; border-bottom-color: #58a6ff; font-weight: 600; }
+    .tab:focus-visible { outline: 2px solid #58a6ff; outline-offset: 2px; }
+
+    /* Sub-tabs */
+    .sub-tabs {
+      display: flex; gap: 0; border-bottom: 1px solid #30363d;
+      margin-bottom: 1.25rem;
+    }
+    .sub-tab {
+      padding: .4rem 1rem; cursor: pointer; border: none; background: none;
+      font-size: .8rem; color: #6e7681; border-bottom: 2px solid transparent;
+      margin-bottom: -1px; transition: all .15s; white-space: nowrap;
+    }
+    .sub-tab:hover { color: #c9d1d9; }
+    .sub-tab.active { color: #f778ba; border-bottom-color: #f778ba; font-weight: 600; }
+    .sub-tab:focus-visible { outline: 2px solid #f778ba; outline-offset: 2px; }
+
+    /* Panels */
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .sub-panel { display: none; }
+    .sub-panel.active { display: block; }
+
+    /* Panel content styles */
+    .panel h2 { font-size: 1.25rem; margin: 1.5rem 0 .75rem; padding-bottom: .5rem; border-bottom: 2px solid #30363d; color: #e6edf3; }
+    .panel h3 { font-size: 1rem; margin: 1.25rem 0 .5rem; color: #58a6ff; }
+    .panel h4 { font-size: .9rem; margin: 1rem 0 .25rem; color: #f778ba; }
+    .panel p { font-size: .9rem; margin-bottom: .75rem; color: #c9d1d9; }
+    .panel ul, .panel ol { padding-left: 1.25rem; margin-bottom: .75rem; }
+    .panel li { font-size: .875rem; margin-bottom: .3rem; color: #c9d1d9; }
+
+    .prize {
+      display: inline-block; background: rgba(210, 153, 34, 0.15); color: #d29922;
+      padding: .2rem .6rem; border-radius: 4px; font-weight: 600; font-size: .85rem;
+    }
+    hr { border: none; border-top: 1px solid #30363d; margin: 1.5rem 0; }
+
+    /* Cards (ideas style) */
+    .card {
+      background: #161b22; border: 1px solid #30363d; border-radius: 8px;
+      padding: 1.25rem; margin: 1rem 0;
+    }
+    .card p { font-size: .85rem; }
+    .project-box {
+      background: linear-gradient(135deg, rgba(26,50,95,0.6) 0%, #161b22 100%);
+      border: 1px solid #58a6ff; border-radius: 8px; padding: 1.25rem; margin: 1rem 0;
+    }
+    .project-box h3 { color: #58a6ff; margin-top: 0; }
+    .grid-2 {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem; margin: 1rem 0;
+    }
+    .direction-card {
+      background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1rem;
+    }
+    .direction-card h4 { margin-top: 0; color: #f778ba; }
+    .direction-card .badge {
+      display: inline-block; font-size: .7rem; padding: .2em .5em;
+      border-radius: 6px; background: #d29922; color: #000;
+      font-weight: 600; margin-bottom: .5rem;
+    }
+    .tag {
+      display: inline-block; font-size: .7rem; font-weight: 600;
+      padding: .15em .5em; border-radius: 4px; margin-right: .4em;
+    }
+    .tag.suno { background: #1a3f2e; color: #3fb950; }
+    .tag.magenta { background: #3b1a4a; color: #d2a8ff; }
+    .tag.idea { background: #1a325f; color: #58a6ff; }
+    .tag.problem { background: #5a1a1a; color: #f85149; }
+
+    /* Suno API reference styles */
+    table {
+      width: 100%; border-collapse: collapse; margin: .75rem 0;
+    }
+    th, td {
+      text-align: left; padding: .6rem .75rem;
+      border-bottom: 1px solid #30363d; font-size: .875rem;
+    }
+    th { color: #8b949e; font-weight: 600; }
+    td { color: #c9d1d9; }
+    code {
+      font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+      font-size: .8125rem; background: rgba(88,166,255,0.1);
+      color: #58a6ff; padding: .15em .4em; border-radius: 4px;
+    }
+    pre {
+      background: #0d1117; border: 1px solid #30363d; border-radius: 6px;
+      padding: 1rem; overflow-x: auto; margin: .75rem 0; font-size: .8125rem; line-height: 1.45;
+    }
+    pre code { background: none; padding: 0; color: #e6edf3; }
+    .status { font-family: monospace; font-size: .8125rem; }
+    .status.submitted { color: #58a6ff; }
+    .status.queued    { color: #d29922; }
+    .status.streaming { color: #3fb950; }
+    .status.complete  { color: #3fb950; }
+    .status.error     { color: #f85149; }
+    .endpoint {
+      font-family: "SF Mono", monospace; font-size: .9375rem; font-weight: 600; margin-bottom: .5rem;
+    }
+    .endpoint .method {
+      display: inline-block; width: 4.5rem; text-align: center;
+      padding: .15em 0; border-radius: 4px; font-size: .75rem; margin-right: .5rem;
+    }
+    .endpoint .method.post { background: #1a3f2e; color: #3fb950; }
+    .endpoint .method.get  { background: #1a325f; color: #58a6ff; }
+    .mode-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem; margin: 1rem 0;
+    }
+    .mode-card {
+      background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1rem;
+    }
+    .mode-card h4 { margin-bottom: .5rem; color: #58a6ff; }
+    .mode-card ul { list-style: none; padding-left: 0; }
+    .mode-card ul li::before { content: "· "; color: #58a6ff; }
+    a { color: #58a6ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .subtitle { color: #8b949e; margin-bottom: 1.5rem; }
+    .icon { font-size: 1.1rem; }
+  </style>
+</head>
+<body>
+
+<h1>Music Hack Berklee</h1>
+
+<div class="tabs" role="tablist">
+  <button class="tab active" role="tab" aria-selected="true" data-tab="challenges">Challenges</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="ideas">Ideas</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="suno-api">Suno API</button>
+</div>
+
+<!-- ==================== Challenges Overview ==================== -->
+<div class="panel active" id="panel-challenges" role="tabpanel">
+  <div class="sub-tabs" role="tablist">
+    <button class="sub-tab active" role="tab" aria-selected="true" data-subtab="deepmind">Google DeepMind</button>
+    <button class="sub-tab" role="tab" aria-selected="false" data-subtab="suno">Suno</button>
+    <button class="sub-tab" role="tab" aria-selected="false" data-subtab="stability">Stability AI</button>
+  </div>
+
+  <div class="sub-panel active" id="subpanel-deepmind" role="tabpanel">
+    <h2>Magenta RealTime 2 <span class="prize">$2,000</span></h2>
+    <h3>Overview</h3>
+    <p>Build and play your own live AI instruments with Magenta RealTime 2, an on-device music model provided as an AudioUnit and Python library. It supports MIDI control, audio/text prompt steering, &lt;100ms response time, runs locally on a modern MacBook, and is open source.</p>
+    <h3>Challenge</h3>
+    <p>Create a live music instrument, plugin, app, experience, and/or performance that blends genres and creates never before heard sounds. Push past static "text2music" toward live, embodied, social, and interactive AI music.</p>
+    <h3>What Teams Can Build</h3>
+    <p>Anything using Magenta RealTime 2 as the creative engine:</p>
+    <ul>
+      <li>Personalized instrument for live performance</li>
+      <li>Interactive/reactive music installation</li>
+      <li>EEG headset brainwave-controlled music</li>
+      <li>Real-time jam partner</li>
+      <li>Assistive tool for music therapy</li>
+    </ul>
+    <h3>Getting Started</h3>
+    <p>Landing page, GitHub code, Hugging Face models, blog post, and announcement. During the hackathon: model access, codebase, examples, and plugins for AudioUnit, MaxMSP, PureData, and SuperCollider. Magenta team mentorship available.</p>
+    <h3>Useful Links</h3>
+    <ul>
+      <li>Landing page</li>
+      <li>Code (GitHub)</li>
+      <li>Models (Hugging Face)</li>
+      <li>Blog post</li>
+      <li>Announcement</li>
+    </ul>
+  </div>
+
+  <div class="sub-panel" id="subpanel-suno" role="tabpanel">
+    <h2>Suno Challenge <span class="prize">$2,000</span></h2>
+    <h3>Overview</h3>
+    <p>Build new ways to play with music using the Suno API. Turn ideas, sounds, and moments into music through prompt-based generation and audio-based creation, remixing, and interaction.</p>
+    <h3>Challenge</h3>
+    <p>Create a project that helps people make, transform, or experience music in a new way — a creative tool, interactive experience, remixing workflow, listening experience, or something entirely unexpected.</p>
+    <h3>What Teams Can Build</h3>
+    <p>Anything using the Suno API as part of a music experience:</p>
+    <ul>
+      <li>Tools for creating songs from ideas</li>
+      <li>Remixing audio</li>
+      <li>Collaborating with others</li>
+      <li>Generating adaptive soundtracks</li>
+      <li>New ways to interact with music</li>
+    </ul>
+    <h3>Getting Started</h3>
+    <p>Participants who select the Suno challenge receive an API access link, credits, and documentation by email ahead of the event.</p>
+  </div>
+
+  <div class="sub-panel" id="subpanel-stability" role="tabpanel">
+    <h2>Stable Audio 3.0 <span class="prize">up to $2,000 ($500/participant)</span></h2>
+    <h3>Overview</h3>
+    <p>Stable Audio 3 is a family of open-weights models that generates full songs, solo instruments, and sound effects, with fast inference on consumer hardware and support for personal customization.</p>
+    <h3>Challenge</h3>
+    <p>Create a publicly available and accessible tool for music producers using Stable Audio 3, encouraging open development and showing the strengths of local open models.</p>
+    <h3>What Teams Can Build</h3>
+    <ul>
+      <li>Interactive drum machine / sampler with generated samples</li>
+      <li>Integration with existing tools (e.g. Max for Live, VSTs)</li>
+      <li>Personal streaming radio station</li>
+      <li>Personal LoRA trainer to fit the model to your own sample library</li>
+    </ul>
+    <h3>Getting Started</h3>
+    <ul>
+      <li><a href="https://github.com/Stability-AI/stable-audio-3" target="_blank">GitHub</a></li>
+      <li><a href="https://huggingface.co/collections/stabilityai/stable-audio-3" target="_blank">Hugging Face</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ==================== Ideas & Analysis ==================== -->
+<div class="panel" id="panel-ideas" role="tabpanel">
+  <p class="subtitle">아이디어 브레인스토밍 &amp; Suno 문제점 분석</p>
+
+  <h2>핵심 프로젝트 컨셉</h2>
+  <div class="project-box">
+    <h3>트롬본 인터랙티브 백그라운드</h3>
+    <p>트롬본을 불면 템포가 세팅되고, 빅밴드의 백그라운드가 재생된다. 설정 후 사용자의 악기와 인터랙티브하는 프로그램. (준호오빠 실시간 트롬본 연주 데모 가능)</p>
+  </div>
+
+  <h2>기술 방향성</h2>
+
+  <div class="card">
+    <h3><span class="tag magenta">Magenta</span> JAM — AI 즉흥연주 파트너</h3>
+    <ul>
+      <li>최소 3명 모여서 즉흥연주, 혼자서도 잼 연습 가능</li>
+      <li><strong>차별점:</strong> 돌아가신 유명 아티스트 스타일로 받아치기</li>
+      <li><strong>문제점:</strong> 라이선스 이슈, 레이턴시, 음악이 flat함 (다이나믹/다양성 부족)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="tag suno">Suno</span> 프로 작곡가 보조 도구</h3>
+    <ul>
+      <li>프로들은 프롬프트를 안 쓰고 직접 만듦 → 창의성을 건드리지 않는 선에서 노가다 작업만 AI가 대체</li>
+      <li>일주일 안에 처음 들어보는 장르 작곡 필요시, 새로운 데이터/장르/소스를 던져주면 에이전트가 학습</li>
+      <li>DAW처럼 주파수별 세부 컨트롤은 불가능, 파형이 flat함</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="tag magenta">Magenta</span> 웨어러블 &amp; 생체신호</h3>
+    <ul>
+      <li>운동 — 신체 웨어러블, 심박수/뇌파 분석 → 어울리는 음악 생성</li>
+      <li>연주 중 뇌파 분석해서 백그라운드 생성</li>
+      <li>그림 그리는 거 실시간으로 음악 들려주기</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="tag magenta">Magenta</span> AI 신디사이저</h3>
+    <ul>
+      <li>소리 검색/찾는 데 시간이 많이 걸림 → 프롬프트나 노래를 넣으면 분석해서 비슷한 신디사이저 소리 생성</li>
+      <li>다른 소리와 합치는 기능 → 스타일이 얹어져서 새로운 소리 탄생</li>
+      <li>음악 듣고 악보 만들기</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="tag suno">Suno</span> 디제잉 &amp; 비주얼라이징</h3>
+    <ul>
+      <li>디제잉하는 느낌으로 소리가 점점 쌓여감</li>
+      <li>스토리텔링 — 단순한 프롬프트가 아니라 이야기와 소리를 주면 계속 쌓아가는 구조</li>
+      <li>DJ 뒤 영상: 보통 미리 만들어져 있음 → Suno가 노래 듣고 분석해서 자동으로 비주얼라이징</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="tag magenta">Magenta</span> 음악 펫 키우기 &amp; 배틀로얄</h3>
+    <ul>
+      <li>옛날 돌아가신 아티스트의 AI (Magenta) — 잼 연습 파트너</li>
+      <li>혼자 잼 연습 못할 때 AI 연주자들이랑 같이 연습, 돌아가신 아티스트 연주스타일/장르 학습해서 실시간 연주</li>
+      <li>노래 배틀로얄</li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <div class="card">
+    <h3>기타 아이디어</h3>
+    <ul>
+      <li><strong>소리 캡쳐 신디사이저:</strong> 원하는 악기 소리 소스 제공 → 비슷한 소리로 구현, 직접 조절 가능한 신디사이저</li>
+      <li><strong>작곡 보조:</strong> 한정된 시간 안에 노래를 만들어야 하는 프로 작곡가용 — 창의적 활동 저해하지 않는 노가다 작업 AI 대체 (퀀타이징, 리듬 생성, 벨로시티 조절, 모듈레이션 등)</li>
+      <li><strong>연주 모션 캡쳐:</strong> 연주 모션 캡쳐해서 그 악기 소리 내기</li>
+      <li><strong>악보 업로드 → AI 컨덕팅</strong></li>
+      <li><strong>노래 듣고 파트보/풀스코어 악보 생성</strong></li>
+      <li><strong>음악 치료 앱</strong></li>
+    </ul>
+  </div>
+
+  <h2>프로젝트 방향성</h2>
+
+  <div class="grid-2">
+    <div class="direction-card">
+      <div class="badge">방향성 A</div>
+      <h4>AI 데스매치: 프로듀서 배틀 룸</h4>
+      <p style="font-size:.85rem;color:#8b949e;">소셜/경쟁 플랫폼 — 음악을 모르는 일반인이 방을 파서 키워드 배틀, Suno가 심판이자 플레이어</p>
+      <ul style="font-size:.8rem;">
+        <li>A/B 유저 매칭 → 랜덤 키워드 + 장르</li>
+        <li>A가 프롬프트 → Suno 30초 곡 생성 (선공)</li>
+        <li>B가 Remix API로 장르 뒤틀기 / Extend API로 반박 가사 (후공)</li>
+        <li>관객 실시간 투표 또는 LLM 판정</li>
+      </ul>
+    </div>
+    <div class="direction-card">
+      <div class="badge">방향성 B</div>
+      <h4>스트리머 실시간 도네이션 송 빌더</h4>
+      <p style="font-size:.85rem;color:#8b949e;">크리에이터 툴 — 방송 중 도네이션 메시지를 Suno가 즉석에서 로고송/밈 송으로 생성</p>
+      <ul style="font-size:.8rem;">
+        <li>시청자 후원 + 메시지 → 스트리머 지정 스타일과 결합</li>
+        <li>Suno가 메시지를 가사에 넣어 훅 생성</li>
+        <li>방송 화면에 가사 자막 + 사운드 송출</li>
+      </ul>
+    </div>
+    <div class="direction-card">
+      <div class="badge">방향성 C</div>
+      <h4>Virtual Vinyl: 시간 여행 턴테이블</h4>
+      <p style="font-size:.85rem;color:#8b949e;">예술/실험 — 오디오 소스 하나로 연도 슬라이더를 움직이며 시대별 스타일로 리믹스</p>
+      <ul style="font-size:.8rem;">
+        <li>시그니처 멜로디 업로드</li>
+        <li>턴테이블 UI로 시대 선택 (1980 도쿄 → 시티팝, 2000 NYC → Neo-Soul)</li>
+        <li>생성된 곡 → 가상 LP 커버 아트로 전시</li>
+      </ul>
+    </div>
+    <div class="direction-card">
+      <div class="badge" style="background:#58a6ff;color:#fff;">AuraStream</div>
+      <h4>AuraStream: 적응형 오디오 공간</h4>
+      <p style="font-size:.85rem;color:#8b949e;">환경 소음 + 사진을 Suno 리믹스로 실시간 음악화</p>
+      <ul style="font-size:.8rem;">
+        <li>5초 환경음 녹음 + 공간 사진 → 하이브리드 프롬프트 엔지니어링</li>
+        <li>Ambient 루프로 레이턴시 은폐</li>
+        <li>장르 스위처(Remix) + 이야기 이어붙이기(Extend)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Suno AI 음악의 5가지 문제점</h2>
+
+  <div class="card">
+    <h3>1. 다이나믹이 없다</h3>
+    <p>사람이 연주하는 음악에는 자연스러운 강약 흐름이 있다. 드러머가 브리지에서 힘을 빼고, 보컬이 감정을 밀어붙이는 움직임. Suno 트랙은 이 다이나믹이 균일해서 처음부터 끝까지 비슷한 에너지 레벨. 음악이 숨을 쉬지 않는 느낌.</p>
+  </div>
+
+  <div class="card">
+    <h3>2. 공간감이 뭉쳐 있다</h3>
+    <p>프로 믹싱은 각 악기와 보컬을 좌우/앞뒤/위아래로 배치해서 청자가 음악 안에 있는 느낌을 만든다. Suno 트랙은 이 공간 설계가 되어있지 않다. 리버브가 들어가도 각 요소가 다른 공간에 있다는 감각이 없어 전체 사운드가 뭉치고, 볼륨을 올릴수록 답답하다.</p>
+  </div>
+
+  <div class="card">
+    <h3>3. 보컬과 악기의 분리도가 낮다</h3>
+    <p>사람 녹음은 보컬이 독립된 트랙이라 믹싱 단계에서 EQ, 주파수 충돌 해결, 보컬을 앞에 세우는 설계가 가능하다. Suno는 보컬과 악기를 하나의 스테레오 파일로 동시에 생성해서 보컬이 악기 사이에 섞여 나온다. 사후 Stem 분리 시 원본 대비 열화 발생.</p>
+  </div>
+
+  <div class="card">
+    <h3>4. 주파수 밸런스가 설계된 것이 아니다</h3>
+    <p>사람 프로덕션은 저/중/고역 비율을 장르와 용도에 맞게 설계한다. Suno의 주파수 밸런스는 AI가 학습한 평균값에 가깝다. 특정 대역이 과하게 쌓이거나 반대로 비어 있는 경우가 잦고, 마스터링으로 원본 밸런스 문제를 완전히 해결하기 어렵다.</p>
+  </div>
+
+  <div class="card">
+    <h3>5. 아티팩트가 존재한다</h3>
+    <p>부자연스러운 음정 변화, 잘못 발음된 가사, 음절이 뭉개지는 구간, 악기 소리가 갑자기 흔들리는 현상. 사람 귀에 즉각 포착되며 "이상하다"는 느낌을 준다. 믹싱/마스터링으로 수정 불가능한 소스 자체의 문제.</p>
+  </div>
+
+  <div class="card" style="border-color: #d29922;">
+    <h3 style="color: #d29922;">결론</h3>
+    <p>Suno AI 음악은 <strong>아이디어 스케치, 레퍼런스 시뮬레이션, 배경음악 초안</strong> 용도로는 충분히 활용 가치가 있다. 빠르게 방향성을 잡는 도구로는 훌륭하다.</p>
+    <p>그러나 <strong>발표용, 상업용, 진지하게 청자에게 들려줄 음악</strong>이라면 현 시점에서 Suno 단독으로는 한계가 명확하다. 사람이 연주하고 노래한 소스에서만 나오는 다이나믹, 공간감, 분리도를 AI는 아직 만들어내지 못하고 있다.</p>
+    <p style="color: #8b949e; font-style: italic;">좋은 음악은 좋은 소스에서 시작한다. 그 소스를 최대한 살리는 것이 믹싱 엔지니어의 일이다.</p>
+  </div>
+</div>
+
+<!-- ==================== Suno API Reference ==================== -->
+<div class="panel" id="panel-suno-api" role="tabpanel">
+  <p class="subtitle">Music generation via Suno's public API</p>
+
+  <h2>Base Info</h2>
+  <div class="card">
+    <table>
+      <tr><th>Base URL</th><td><code>https://api.suno.com/</code></td></tr>
+      <tr><th>Auth</th><td><code>Authorization: Bearer sk_live_&lt;64-hex&gt;</code></td></tr>
+      <tr><th>Rate Limit</th><td>10 req/s sustained, 20 burst (per IP)</td></tr>
+    </table>
+  </div>
+
+  <h2>Generation Flow</h2>
+  <div class="card">
+    <ol style="margin-left:1.25rem;font-size:.9rem;">
+      <li><code>POST</code> to generation endpoint → <code>{ "id", "status": "submitted" }</code></li>
+      <li>Poll <code>GET /v0/audio/{id}</code> until <code>status</code> is <code>"complete"</code> or <code>"error"</code></li>
+      <li>When <code>"streaming"</code> or <code>"complete"</code>, <code>audio_url</code> is populated</li>
+    </ol>
+    <p style="margin-top:.75rem;color:#8b949e;font-size:.85rem;">Typical wall-clock time: under 1 minute.</p>
+
+    <h3>Status Values</h3>
+    <table>
+      <tr><th>Status</th><th>Meaning</th></tr>
+      <tr><td class="status submitted">submitted</td><td>Accepted; job has not started yet</td></tr>
+      <tr><td class="status queued">queued</td><td>Waiting to start</td></tr>
+      <tr><td class="status streaming">streaming</td><td>Partial audio available at <code>audio_url</code></td></tr>
+      <tr><td class="status complete">complete</td><td>Final CDN URL available at <code>audio_url</code></td></tr>
+      <tr><td class="status error">error</td><td>Failed; see <code>error</code> field</td></tr>
+    </table>
+  </div>
+
+  <h2>Preset Voice IDs</h2>
+  <div class="card">
+    <p style="font-size:.875rem;color:#8b949e;margin-bottom:.75rem;">Pass in the optional <code>voice_id</code> field. Omit to let the model pick automatically.</p>
+    <table>
+      <tr><th>UUID</th><th>Description</th></tr>
+      <tr><td><code>5b915c6d-8d96-416c-9755-eba65868cfef</code></td><td>Preset A — female voice</td></tr>
+      <tr><td><code>c036ce3a-55e4-4690-9b8d-4516b37a96d5</code></td><td>Preset B — weird kid voice</td></tr>
+      <tr><td><code>27f5465b-73c3-4134-b11e-70b0bd571c6c</code></td><td>Preset C — low male voice</td></tr>
+    </table>
+  </div>
+
+  <h2>Generation Modes</h2>
+  <div class="mode-grid">
+    <div class="mode-card">
+      <h4>1. Simple</h4>
+      <code>POST /v0/audio</code>
+      <ul>
+        <li><code>description</code> (required)</li>
+        <li><code>title</code> (optional)</li>
+        <li><code>voice_id</code> (optional)</li>
+      </ul>
+    </div>
+    <div class="mode-card">
+      <h4>2. Custom</h4>
+      <code>POST /v0/audio</code>
+      <ul>
+        <li><code>lyrics</code> + <code>style</code> (required)</li>
+        <li><code>title</code>, <code>voice_id</code> (optional)</li>
+        <li><code>instrumental: true</code></li>
+      </ul>
+    </div>
+    <div class="mode-card">
+      <h4>3. Cover</h4>
+      <code>POST /v0/audio/{id}/covers</code>
+      <ul>
+        <li><code>lyrics</code>, <code>style</code>, <code>voice_id</code> (all optional)</li>
+      </ul>
+    </div>
+    <div class="mode-card">
+      <h4>4. Mashup</h4>
+      <code>POST /v0/audio/{id}/mashups</code>
+      <ul>
+        <li><code>additional_audio_id</code> (required)</li>
+        <li><code>lyrics</code>, <code>style</code> (optional)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Endpoints</h2>
+
+  <div class="card">
+    <div class="endpoint"><span class="method post">POST</span> /v0/audio</div>
+    <p style="font-size:.875rem;color:#8b949e;margin-bottom:.75rem;">Simple or Custom generation.</p>
+    <h3>Simple — description only</h3>
+    <pre><code>{
+  "description": "upbeat synthwave track about driving through Tokyo at night",
+  "title": "Neon Drive"
+}</code></pre>
+    <h3>Simple with voice</h3>
+    <pre><code>{
+  "description": "upbeat synthwave track about driving through Tokyo at night",
+  "title": "Neon Drive",
+  "voice_id": "5b915c6d-8d96-416c-9755-eba65868cfef"
+}</code></pre>
+    <h3>Custom — lyrics + style</h3>
+    <pre><code>{
+  "lyrics": "[Verse]\nWalking through the static glow\nEvery street a radio",
+  "style": "dreampop, reverb-heavy guitars, melancholic",
+  "title": "Signal &amp; Noise"
+}</code></pre>
+    <h3>Instrumental</h3>
+    <pre><code>{
+  "style": "lo-fi hip hop, mellow piano, rainy night",
+  "title": "Study Beats",
+  "instrumental": true
+}</code></pre>
+  </div>
+
+  <div class="card">
+    <div class="endpoint"><span class="method post">POST</span> /v0/audio/{id}/covers</div>
+    <p style="font-size:.875rem;color:#8b949e;margin-bottom:.75rem;">Re-generate an existing clip with new style/lyrics/voice.</p>
+    <pre><code>{
+  "style": "acoustic folk, fingerpicked guitar",
+  "voice_id": "27f5465b-73c3-4134-b11e-70b0bd571c6c"
+}</code></pre>
+  </div>
+
+  <div class="card">
+    <div class="endpoint"><span class="method post">POST</span> /v0/audio/{id}/mashups</div>
+    <p style="font-size:.875rem;color:#8b949e;margin-bottom:.75rem;">Blend two clips you own. <code>voice_id</code> not supported.</p>
+    <pre><code>{
+  "additional_audio_id": "9a9e1da2-cf97-46bc-9b07-eaa2290fcba0",
+  "lyrics": "[Verse]\nTwo songs braided into one",
+  "style": "trap meets folk"
+}</code></pre>
+  </div>
+
+  <div class="card">
+    <div class="endpoint"><span class="method get">GET</span> /v0/audio/{id}</div>
+    <p style="font-size:.875rem;color:#8b949e;margin-bottom:.75rem;">Poll generation status.</p>
+    <h3>Response (complete)</h3>
+    <pre><code>{
+  "id": "6e2b0f3a-1c5d-4a2e-9f81-7c11f9e24b08",
+  "status": "complete",
+  "audio_url": "https://cdn.suno.ai/.../audio.mp3",
+  "title": "Neon Drive",
+  "created_at": "2026-04-20T18:03:11Z",
+  "error": null,
+  "metadata": {
+    "lyrics": "[Verse]\n...",
+    "style": "synthwave, driving, neon",
+    "description": "upbeat synthwave track about driving through Tokyo at night"
+  }
+}</code></pre>
+  </div>
+
+  <div class="card">
+    <div class="endpoint"><span class="method get">GET</span> /v0/account/usage</div>
+    <p style="font-size:.875rem;color:#8b949e;margin-bottom:.75rem;">Check rate limits and plan quotas.</p>
+  </div>
+
+  <h2>Error Codes</h2>
+  <div class="card">
+    <table>
+      <tr><th>Status</th><th>Common Causes</th></tr>
+      <tr><td><code>400</code></td><td>Missing both lyrics &amp; description; using <code>style</code> with <code>description</code>; invalid <code>voice_id</code>; missing <code>additional_audio_id</code></td></tr>
+      <tr><td><code>401</code></td><td>Missing or invalid Authorization header</td></tr>
+      <tr><td><code>403</code></td><td>Plan does not include the requested feature</td></tr>
+      <tr><td><code>404</code></td><td>Source clip not found / not owned by you</td></tr>
+      <tr><td><code>429</code></td><td>Rate limit or plan quota exceeded</td></tr>
+      <tr><td><code>500</code></td><td>Server error — safe to retry after backoff</td></tr>
+    </table>
+  </div>
+</div>
+
+<script>
+  function switchTab(name) {
+    const tab = document.querySelector(`.tab[data-tab="${name}"]`);
+    if (tab) tab.click();
+  }
+  // Top-level tabs
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => {
+        t.classList.remove('active'); t.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active'); tab.setAttribute('aria-selected', 'true');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    });
+    tab.addEventListener('keydown', e => {
+      const arr = Array.from(tabs);
+      const idx = arr.indexOf(tab);
+      let next;
+      if (e.key === 'ArrowRight') next = arr[(idx + 1) % arr.length];
+      else if (e.key === 'ArrowLeft') next = arr[(idx - 1 + arr.length) % arr.length];
+      if (next) { e.preventDefault(); next.click(); next.focus(); }
+    });
+  });
+  // Sub-tabs
+  const subTabs = document.querySelectorAll('.sub-tab');
+  subTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.sub-tab').forEach(t => {
+        t.classList.remove('active'); t.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active'); tab.setAttribute('aria-selected', 'true');
+      document.getElementById('subpanel-' + tab.dataset.subtab).classList.add('active');
+    });
+    tab.addEventListener('keydown', e => {
+      const arr = Array.from(subTabs);
+      const idx = arr.indexOf(tab);
+      let next;
+      if (e.key === 'ArrowRight') next = arr[(idx + 1) % arr.length];
+      else if (e.key === 'ArrowLeft') next = arr[(idx - 1 + arr.length) % arr.length];
+      if (next) { e.preventDefault(); next.click(); next.focus(); }
+    });
+  });
+</script>
+</body>
+</html>

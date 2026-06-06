@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suno API Reference</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --red: #f85149;
+    --yellow: #d29922;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem;
+  }
+  .container { max-width: 1000px; margin: 0 auto; }
+  h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+  .subtitle { color: var(--muted); margin-bottom: 2rem; }
+  h2 {
+    font-size: 1.25rem;
+    margin: 2rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 { font-size: 1rem; margin: 1.5rem 0 0.5rem; color: var(--accent); }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin: 1rem 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75rem 0;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.875rem;
+  }
+  th { color: var(--muted); font-weight: 600; }
+  code {
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: 0.8125rem;
+    background: rgba(88,166,255,0.1);
+    color: var(--accent);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+  }
+  pre {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 0.75rem 0;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+  }
+  pre code { background: none; padding: 0; color: var(--text); }
+  .tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.15em 0.5em;
+    border-radius: 4px;
+    margin-right: 0.4em;
+  }
+  .tag.post { background: #1a3f2e; color: var(--green); }
+  .tag.get  { background: #1a325f; color: var(--accent); }
+  .badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 0.2em 0.6em;
+    border-radius: 10px;
+    background: var(--border);
+    color: var(--muted);
+  }
+  .status { font-family: monospace; font-size: 0.8125rem; }
+  .status.submitted { color: var(--accent); }
+  .status.queued    { color: var(--yellow); }
+  .status.streaming { color: var(--green); }
+  .status.complete  { color: var(--green); }
+  .status.error     { color: var(--red); }
+  .endpoint {
+    font-family: "SF Mono", monospace;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .endpoint .method {
+    display: inline-block;
+    width: 4.5rem;
+    text-align: center;
+    padding: 0.15em 0;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    margin-right: 0.5rem;
+  }
+  .endpoint .method.post { background: #1a3f2e; color: var(--green); }
+  .endpoint .method.get  { background: #1a325f; color: var(--accent); }
+  .mode-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  .mode-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .mode-card h4 { margin-bottom: 0.5rem; }
+  .mode-card ul { list-style: none; font-size: 0.875rem; color: var(--muted); }
+  .mode-card ul li::before { content: "· "; color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Suno API Quick Reference</h1>
+<p class="subtitle">Music generation via Suno's public API</p>
+
+<section>
+  <h2>Base Info</h2>
+  <div class="card">
+    <table>
+      <tr><th>Base URL</th><td><code>https://api.suno.com/</code></td></tr>
+      <tr><th>Auth</th><td><code>Authorization: Bearer sk_live_&lt;64-hex&gt;</code></td></tr>
+      <tr><th>Rate Limit</th><td>10 req/s sustained, 20 burst (per IP)</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Generation Flow</h2>
+  <div class="card">
+    <ol style="margin-left:1.25rem;font-size:0.9rem;">
+      <li><code>POST</code> to generation endpoint → <code>{ "id", "status": "submitted" }</code></li>
+      <li>Poll <code>GET /v0/audio/{id}</code> until <code>status</code> is <code>"complete"</code> or <code>"error"</code></li>
+      <li>When <code>"streaming"</code> or <code>"complete"</code>, <code>audio_url</code> is populated</li>
+    </ol>
+    <p style="margin-top:0.75rem;color:var(--muted);font-size:0.85rem;">Typical wall-clock time: under 1 minute.</p>
+
+    <h3>Status Values</h3>
+    <table>
+      <tr><th>Status</th><th>Meaning</th></tr>
+      <tr><td class="status submitted">submitted</td><td>Accepted; job has not started yet</td></tr>
+      <tr><td class="status queued">queued</td><td>Waiting to start</td></tr>
+      <tr><td class="status streaming">streaming</td><td>Partial audio available at <code>audio_url</code></td></tr>
+      <tr><td class="status complete">complete</td><td>Final CDN URL available at <code>audio_url</code></td></tr>
+      <tr><td class="status error">error</td><td>Failed; see <code>error</code> field</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Preset Voice IDs</h2>
+  <div class="card">
+    <p style="font-size:0.875rem;color:var(--muted);margin-bottom:0.75rem;">Pass in the optional <code>voice_id</code> field. Omit to let the model pick automatically.</p>
+    <table>
+      <tr><th>UUID</th><th>Description</th></tr>
+      <tr><td><code>5b915c6d-8d96-416c-9755-eba65868cfef</code></td><td>Preset A — female voice</td></tr>
+      <tr><td><code>c036ce3a-55e4-4690-9b8d-4516b37a96d5</code></td><td>Preset B — weird kid voice</td></tr>
+      <tr><td><code>27f5465b-73c3-4134-b11e-70b0bd571c6c</code></td><td>Preset C — low male voice</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Generation Modes</h2>
+
+  <div class="mode-grid">
+    <div class="mode-card">
+      <h4>1. Simple</h4>
+      <code>POST /v0/audio</code>
+      <ul>
+        <li><code>description</code> (required)</li>
+        <li><code>title</code> (optional)</li>
+        <li><code>voice_id</code> (optional)</li>
+      </ul>
+    </div>
+    <div class="mode-card">
+      <h4>2. Custom</h4>
+      <code>POST /v0/audio</code>
+      <ul>
+        <li><code>lyrics</code> + <code>style</code> (required)</li>
+        <li><code>title</code>, <code>voice_id</code> (optional)</li>
+        <li><code>instrumental: true</code></li>
+      </ul>
+    </div>
+    <div class="mode-card">
+      <h4>3. Cover</h4>
+      <code>POST /v0/audio/{id}/covers</code>
+      <ul>
+        <li><code>lyrics</code>, <code>style</code>, <code>voice_id</code> (all optional)</li>
+      </ul>
+    </div>
+    <div class="mode-card">
+      <h4>4. Mashup</h4>
+      <code>POST /v0/audio/{id}/mashups</code>
+      <ul>
+        <li><code>additional_audio_id</code> (required)</li>
+        <li><code>lyrics</code>, <code>style</code> (optional)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Endpoints</h2>
+
+  <div class="card">
+    <div class="endpoint"><span class="method post">POST</span> /v0/audio</div>
+    <p style="font-size:0.875rem;color:var(--muted);margin-bottom:0.75rem;">Simple or Custom generation.</p>
+    <h3>Simple — description only</h3>
+    <pre><code>{
+  "description": "upbeat synthwave track about driving through Tokyo at night",
+  "title": "Neon Drive"
+}</code></pre>
+    <h3>Simple with voice</h3>
+    <pre><code>{
+  "description": "upbeat synthwave track about driving through Tokyo at night",
+  "title": "Neon Drive",
+  "voice_id": "5b915c6d-8d96-416c-9755-eba65868cfef"
+}</code></pre>
+    <h3>Custom — lyrics + style</h3>
+    <pre><code>{
+  "lyrics": "[Verse]\nWalking through the static glow\nEvery street a radio",
+  "style": "dreampop, reverb-heavy guitars, melancholic",
+  "title": "Signal & Noise"
+}</code></pre>
+    <h3>Instrumental</h3>
+    <pre><code>{
+  "style": "lo-fi hip hop, mellow piano, rainy night",
+  "title": "Study Beats",
+  "instrumental": true
+}</code></pre>
+  </div>
+
+  <div class="card">
+    <div class="endpoint"><span class="method post">POST</span> /v0/audio/{id}/covers</div>
+    <p style="font-size:0.875rem;color:var(--muted);margin-bottom:0.75rem;">Re-generate an existing clip with new style/lyrics/voice.</p>
+    <pre><code>{
+  "style": "acoustic folk, fingerpicked guitar",
+  "voice_id": "27f5465b-73c3-4134-b11e-70b0bd571c6c"
+}</code></pre>
+  </div>
+
+  <div class="card">
+    <div class="endpoint"><span class="method post">POST</span> /v0/audio/{id}/mashups</div>
+    <p style="font-size:0.875rem;color:var(--muted);margin-bottom:0.75rem;">Blend two clips you own. <code>voice_id</code> not supported.</p>
+    <pre><code>{
+  "additional_audio_id": "9a9e1da2-cf97-46bc-9b07-eaa2290fcba0",
+  "lyrics": "[Verse]\nTwo songs braided into one",
+  "style": "trap meets folk"
+}</code></pre>
+  </div>
+
+  <div class="card">
+    <div class="endpoint"><span class="method get">GET</span> /v0/audio/{id}</div>
+    <p style="font-size:0.875rem;color:var(--muted);margin-bottom:0.75rem;">Poll generation status.</p>
+    <h3>Response (complete)</h3>
+    <pre><code>{
+  "id": "6e2b0f3a-1c5d-4a2e-9f81-7c11f9e24b08",
+  "status": "complete",
+  "audio_url": "https://cdn.suno.ai/.../audio.mp3",
+  "title": "Neon Drive",
+  "created_at": "2026-04-20T18:03:11Z",
+  "error": null,
+  "metadata": {
+    "lyrics": "[Verse]\n...",
+    "style": "synthwave, driving, neon",
+    "description": "upbeat synthwave track about driving through Tokyo at night"
+  }
+}</code></pre>
+  </div>
+
+  <div class="card">
+    <div class="endpoint"><span class="method get">GET</span> /v0/account/usage</div>
+    <p style="font-size:0.875rem;color:var(--muted);margin-bottom:0.75rem;">Check rate limits and plan quotas.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Error Codes</h2>
+  <div class="card">
+    <table>
+      <tr><th>Status</th><th>Common Causes</th></tr>
+      <tr><td><code>400</code></td><td>Missing both lyrics &amp; description; using <code>style</code> with <code>description</code>; invalid <code>voice_id</code>; missing <code>additional_audio_id</code></td></tr>
+      <tr><td><code>401</code></td><td>Missing or invalid Authorization header</td></tr>
+      <tr><td><code>403</code></td><td>Plan does not include the requested feature</td></tr>
+      <tr><td><code>404</code></td><td>Source clip not found / not owned by you</td></tr>
+      <tr><td><code>429</code></td><td>Rate limit or plan quota exceeded</td></tr>
+      <tr><td><code>500</code></td><td>Server error — safe to retry after backoff</td></tr>
+    </table>
+  </div>
+</section>
+
+</div>
+</body>
+</html>

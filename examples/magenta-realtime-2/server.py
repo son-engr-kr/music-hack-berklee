@@ -102,7 +102,9 @@ async def websocket_endpoint(ws: WebSocket):
             assert action == "generate"
             frames = int(msg.get("frames", 1))
             assert 1 <= frames <= 300
-            prompt = msg.get("prompt", "synth pad") if msg.get("style_mode", "prompt") == "prompt" else None
+            style_sources = msg.get("style_sources")
+            style_embedding = engine.get_mixed_style(style_sources) if style_sources else None
+            prompt = msg.get("prompt", "synth pad") if msg.get("style_mode", "prompt") == "prompt" and style_embedding is None else None
             notes = _parse_notes(msg)
             drums = msg.get("drums", [-1])
 
@@ -119,6 +121,7 @@ async def websocket_endpoint(ws: WebSocket):
                 cfg_notes=msg.get("cfg_notes"),
                 cfg_drums=msg.get("cfg_drums"),
                 continuous=bool(msg.get("continuous", True)),
+                style_embedding=style_embedding,
             )
             elapsed = time.perf_counter() - t0
 

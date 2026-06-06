@@ -82,6 +82,27 @@ class MRT2Engine:
                 self._style_cache[prompt] = self._mrt.embed_style(prompt)
             return self._style_cache[prompt]
 
+    def get_mixed_style(self, sources: list[dict[str, Any]]):
+        assert sources
+        weighted = None
+        total_weight = 0.0
+        for source in sources:
+            weight = float(source["weight"])
+            if weight <= 0:
+                continue
+            kind = source["kind"]
+            if kind == "audio":
+                style = self.get_style(source["key"])
+            elif kind == "text":
+                style = self.get_style(source["text"])
+            else:
+                raise ValueError(f"Unsupported style source: {kind}")
+            weighted = style * weight if weighted is None else weighted + style * weight
+            total_weight += weight
+        assert weighted is not None
+        assert total_weight > 0
+        return weighted / total_weight
+
     def set_audio_style(self, name: str, suffix: str, data: bytes) -> str:
         assert data
         key = f"audio:{time_safe_name(name)}:{len(data)}"
@@ -106,9 +127,10 @@ class MRT2Engine:
         cfg_notes: float | None,
         cfg_drums: float | None,
         continuous: bool,
+        style_embedding: Any | None = None,
     ) -> audio.Waveform:
         assert frames > 0
-        style = self.get_style(prompt)
+        style = style_embedding if style_embedding is not None else self.get_style(prompt)
         with self._generate_lock:
             prev_state = self._states.get(session_id) if continuous else None
             kwargs = dict(
@@ -147,6 +169,7 @@ class MRT2Engine:
         cfg_notes: float | None = None,
         cfg_drums: float | None = None,
         continuous: bool = True,
+        style_embedding: Any | None = None,
     ) -> tuple[bytes, int, int, int]:
         wav = self._generate_waveform(
             prompt=prompt,
@@ -160,6 +183,7 @@ class MRT2Engine:
             cfg_notes=cfg_notes,
             cfg_drums=cfg_drums,
             continuous=continuous,
+            style_embedding=style_embedding,
         )
         samples = wav.samples.astype(np.float32, copy=False)
         if samples.ndim == 1:

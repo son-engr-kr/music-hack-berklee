@@ -113,6 +113,10 @@
       <div class="field"><label>Preset</label><select id="preset"></select><div class="hint">Official Magenta demo presets. Accompany presets are ensemble/groove prompts; Solo presets are instrument prompts.</div></div>
       <div class="field"><label>Prompt</label><input id="prompt" type="text" value="Dreamy Ambient Pads"></div>
       <div class="field"><label>Audio cloning</label><div class="minirow"><button class="smallbtn" id="upload-audio">Upload Audio Prompt</button><button class="smallbtn" id="clear-audio">Clear Audio</button></div><input id="audio-file" type="file" accept="audio/*" hidden><div class="hint" id="audio-style-status">Uses MusicCoCa audio embedding as the style prompt, matching the public demo's audio prompt idea. Full audio prefill still requires C++ core.</div></div>
+      <div class="split">
+        <div class="field"><label>Audio weight <b id="audio-weight-v">0.70</b></label><input id="audio-weight" type="range" min="0" max="100" value="70"><div class="hint">How much uploaded audio controls the style. Only active after uploading audio.</div></div>
+        <div class="field"><label>Text weight <b id="text-weight-v">0.30</b></label><input id="text-weight" type="range" min="0" max="100" value="30"><div class="hint">How much the text prompt steers the uploaded audio style.</div></div>
+      </div>
       <div class="field"><label>Jam mode</label><div class="segrow" id="jam-mode"><div class="seg on" data-value="accompany">Accompany</div><div class="seg" data-value="solo">Solo prefix</div></div><div class="hint">Official Jam sends SOLO before instrument prompts. Python API cannot expose C++ unmask-width yet, but the prefix still helps steer instrument-like output.</div></div>
       <div class="field"><label>Style mode</label><div class="segrow" id="style-mode"><div class="seg on" data-value="prompt">Prompt</div><div class="seg" data-value="unconditioned">None</div></div><div class="hint">Prompt uses MusicCoCa style tokens. None masks style conditioning.</div></div>
       <div class="split">
@@ -271,6 +275,7 @@ function buildMessage() {
   onset.clear();
   return {
     action: 'generate', mode: 'lab', style_mode: selected('style-mode'), prompt: effectivePrompt(),
+    style_sources: styleSources(),
     notes_mode: selected('notes-mode'), notes,
     drums: selected('drumless') === 'on' ? [0] : [parseInt(selected('drums-mode'))],
     unmask_width: parseInt($('unmask').value),
@@ -284,12 +289,21 @@ function buildMessage() {
 }
 
 function effectivePrompt() {
-  if (audioStyleKey) return audioStyleKey;
   const text = $('prompt').value.trim();
   const seed = parseInt($('seed').value);
   const variation = seed > 0 ? ` variation ${seed}` : '';
   if ((selected('jam-mode') === 'solo' || selected('voice-mode') === 'solo') && text) return `SOLO ${text}${variation}`;
   return text ? `${text}${variation}` : 'silence';
+}
+
+function styleSources() {
+  if (!audioStyleKey) return null;
+  const audioWeight = parseInt($('audio-weight').value) / 100;
+  const textWeight = parseInt($('text-weight').value) / 100;
+  const sources = [];
+  if (audioWeight > 0) sources.push({ kind: 'audio', key: audioStyleKey, weight: audioWeight });
+  if (textWeight > 0) sources.push({ kind: 'text', text: effectivePrompt(), weight: textWeight });
+  return sources.length ? sources : [{ kind: 'audio', key: audioStyleKey, weight: 1 }];
 }
 
 function pump() {
@@ -420,6 +434,8 @@ function updateReadouts() {
   $('unmask-v').textContent = $('unmask').value;
   $('seed-v').textContent = $('seed').value;
   $('gain-v').textContent = (parseInt($('gain').value) / 100).toFixed(2);
+  $('audio-weight-v').textContent = (parseInt($('audio-weight').value) / 100).toFixed(2);
+  $('text-weight-v').textContent = (parseInt($('text-weight').value) / 100).toFixed(2);
   $('queue-text').textContent = `${queuedSeconds.toFixed(2)}s`;
   $('underruns').textContent = underruns;
   $('mode').textContent = live ? (waiting ? 'live generating' : 'live') : 'idle';
